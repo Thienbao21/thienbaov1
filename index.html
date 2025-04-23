@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tool Phân Tích MD5</title>
+  <style>
+    body {
+      background-color: #0c0c0c;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .step {
+      display: none;
+      margin-top: 80px;
+    }
+    .visible {
+      display: block;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+      width: 250px;
+      max-width: 100%;
+    }
+    button {
+      background-color: #00c3ff;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00c3ff;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #00a3dd;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 18px;
+    }
+    #result, #error-log {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    #analyzing {
+      color: #ff0;
+      font-size: 22px;
+      margin-top: 15px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+    @media (max-width: 600px) {
+      input, button {
+        width: 90%;
+        font-size: 14px;
+      }
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Bước 1: Đăng Nhập (Tùy chọn) -->
+  <div id="step1" class="step visible">
+    <h2>Đăng Nhập</h2>
+    <input type="text" id="username" placeholder="Nhập tên đăng nhập">
+    <input type="password" id="password" placeholder="Nhập mật khẩu">
+    <button onclick="login()">Đăng Nhập</button>
+    <button>Liên Hệ Để Biết Tài Khoản Và Mật Khẩu</button>
+  </div>
+<div class="contact-info">
+      Liên hệ: 
+      <a href="https://t.me/BaoOnTop">Telegram</a> |
+      <a href="https://zalo.me/0329686960">Zalo</a> |
+      <a href="https://facebook.com/hgacheat.agency">Facebook</a>
+    </div>
+  <!-- Bước 2: Nhập License Key -->
+  <div id="step2" class="step">
+    <h2>Nhập License Key</h2>
+    <label for="licenseKey">License Key:</label>
+    <input type="text" id="licenseKey" placeholder="Nhập License Key">
+    <button onclick="validateLicense(false)">Xác nhận License</button>
+    <div id="error-log" style="color: #ff4444;"></div>
+  </div>
+
+  <!-- Bước 3: Chọn Nền Tảng -->
+  <div id="step3" class="step">
+    <h2>Chọn Nền Tảng</h2>
+    <button onclick="selectGame('789')">789</button>
+    <button onclick="selectGame('Hitclub')">Hitclub</button>
+    <button onclick="selectGame('Kubet')">Kubet</button>
+    <button onclick="selectGame('Sunwin')">Sunwin</button>
+    <button onclick="selectGame('B52')">B52</button>
+    <button onclick="selectGame('Rikvip')">Rikvip</button>
+    <br><br>
+    <label for="otherSite">Nền tảng khác:</label>
+    <input type="text" id="otherSite" placeholder="Hoặc nhập nền tảng khác">
+    <p style="margin-top: 5px; color: #ffcc00; font-style: italic;">
+      Hỗ trợ cả các cổng game quốc tế.
+    </p>
+    <button onclick="showStep(4)">Tiếp tục</button>
+  </div>
+
+  <!-- Bước 4: Nhập Mã MD5 -->
+  <div id="step4" class="step">
+    <h2>Nhập Mã MD5</h2>
+    <label for="md5">Mã MD5:</label>
+    <input type="text" id="md5" placeholder="Nhập mã MD5">
+    <button onclick="analyze()">Phân Tích</button>
+    <p id="analyzing" style="display:none;">Bot Đang Phân Tích...</p>
+    <div id="result"></div>
+  </div>
+
+  <canvas id="moneyCanvas"></canvas>
+
+  <script>
+    // Canvas animation
+    const canvas = document.getElementById('moneyCanvas');
+    const ctx = canvas.getContext('2d');
+    let symbols = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createSymbols(count) {
+      symbols = [];
+      for (let i = 0; i < count; i++) {
+        symbols.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          speed: 1 + Math.random() * 3,
+          fontSize: 14 + Math.random() * 20
+        });
+      }
+    }
+
+    function drawSymbols() {
+      if (document.hidden) {
+        requestAnimationFrame(drawSymbols);
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00ff00';
+      symbols.forEach(s => {
+        ctx.font = `bold ${s.fontSize}px Arial`;
+        ctx.fillText('$', s.x, s.y);
+        s.y += s.speed;
+        if (s.y > canvas.height) {
+          s.y = -20;
+          s.x = Math.random() * canvas.width;
+        }
+      });
+      requestAnimationFrame(drawSymbols);
+    }
+
+    function startLightRain() {
+      createSymbols(30);
+      drawSymbols();
+    }
+
+    function startHeavyRain() {
+      createSymbols(150);
+      drawSymbols();
+    }
+
+    startLightRain();
+
+    // Step navigation
+    function showStep(n) {
+      document.querySelectorAll('.step').forEach(step => {
+        step.classList.remove('visible');
+      });
+      document.getElementById('step' + n).classList.add('visible');
+      document.getElementById('error-log').textContent = '';
+    }
+
+    // Login (optional)
+    function login() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (u === 'thienbao001' && p === 'trumtaixiu') {
+        showStep(2);
+      } else {
+        alert('Sai tài khoản hoặc mật khẩu!');
+      }
+    }
+
+    // License validation
+    async function validateLicense(useServer) {
+      const key = document.getElementById('licenseKey').value.trim();
+      const errorLog = document.getElementById('error-log');
+      errorLog.textContent = '';
+      if (!key) {
+        alert('Vui lòng nhập License Key!');
+        return;
+      }
+
+      try {
+        let url, options;
+        if (useServer) {
+          url = 'http://localhost:3000/validate-license'; // Replace with production URL
+          options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key })
+          };
+        } else {
+          const productId = 29723;
+          const accessToken = 'WyIxMDY4NjYyMjMiLCJxanplc1hRZ0J0RlRYQWR1aFFqdzNLZWdRMmVoWUpYV09KN21vZFVyIl0=';
+          url = `https://api.cryptolens.io/api/key/Activate?token=${accessToken}&ProductId=${productId}&Key=${key}`;
+          options = { method: 'GET' };
+        }
+
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log('Response:', data);
+
+        if (data.result === 0) {
+          alert('License Key hợp lệ!');
+          showStep(3);
+        } else {
+          alert('License Key không hợp lệ: ' + (data.message || 'Unknown error'));
+          errorLog.textContent = 'Lỗi: ' + (data.message || 'Invalid license key');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        errorLog.textContent = `Lỗi kết nối: ${err.message}`;
+        alert(`Lỗi kết nối: ${err.message}. Vui lòng kiểm tra server hoặc thử lại.`);
+      }
+    }
+
+    // Platform selection
+    function selectGame(game) {
+      document.getElementById('otherSite').value = game;
+    }
+
+    // MD5 analysis
+    function analyze() {
+      const md5 = document.getElementById('md5').value.trim();
+      if (!/^[0-9a-fA-F]{32}$/.test(md5)) {
+        alert('Mã MD5 không hợp lệ! Phải là 32 ký tự hexadecimal.');
+        return;
+      }
+
+      document.getElementById('analyzing').style.display = 'block';
+      document.getElementById('result').innerHTML = '';
+
+      setTimeout(() => {
+        const parts = [md5.slice(0, 8), md5.slice(8, 16), md5.slice(16, 24)];
+        const nums = parts.map(p => parseInt(p, 16) % 6 + 1);
+        const total = nums.reduce((a, b) => a + b, 0);
+        const result = total >= 11 ? 'TÀI' : 'XỈU';
+
+        const percentTai = (result === 'TÀI' ? 75 + Math.random() * 10 : 20 + Math.random() * 10).toFixed(1);
+        const percentXiu = (100 - percentTai).toFixed(1);
+
+        const khuyenCao = percentTai >= 75 ? 'TÀI TO - NÊN MẠNH TAY !!!' :
+                         percentXiu >= 75 ? 'XỈU TO - ÔM HẾT VỐN ĐI !!!' :
+                         'Phân vân - Cân nhắc trước khi all-in.';
+
+        document.getElementById('analyzing').style.display = 'none';
+        document.getElementById('result').innerHTML = `
+          <div style="padding: 20px; border: 2px solid #00f7ff; border-radius: 10px; background: rgba(0,0,0,0.6); box-shadow: 0 0 15px #00f7ff;">
+            <h2 style="color: ${result === 'TÀI' ? '#0f0' : '#f00'}; font-size: 28px;">KẾT QUẢ: ${result}</h2>
+            <p style="font-size: 18px;">Số xúc xắc: <b>${nums.join(' - ')}</b> | Tổng: <b>${total}</b></p>
+            <p style="font-size: 18px;">TÀI: <span style="color:#0f0">${percentTai}%</span> | XỈU: <span style="color:#f00">${percentXiu}%</span></p>
+            <p style="margin-top:10px; color: #ffcc00; font-weight: bold;">KHUYẾN CÁO: ${khuyenCao}</p>
+          </div>
+        `;
+        startHeavyRain();
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
